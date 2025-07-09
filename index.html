@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Evaluación de Puestos - Método HAY</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Herramienta de Evaluación de Puestos</h1>
+
+    <section>
+      <h2>1. Descripción del Puesto</h2>
+      <label>Puesto: <input type="text" id="nombrePuesto" /></label>
+      <label>Área / Departamento: <input type="text" id="area" /></label>
+      <label>Objetivo del Puesto:<br><textarea id="objetivo" rows="3"></textarea></label>
+      <label>Funciones Principales:<br><textarea id="funciones" rows="5" placeholder="Separá con punto y coma..."></textarea></label>
+      <label>Relaciones Internas y Externas:<br><textarea id="relaciones" rows="3"></textarea></label>
+      <label>Requisitos del Puesto:<br><textarea id="requisitos" rows="3"></textarea></label>
+    </section>
+
+    <section>
+      <h2>2. Valoración según Método HAY</h2>
+      <label>Know-How:
+        <select id="knowhow">
+          <option value="120">Bajo</option>
+          <option value="200">Medio</option>
+          <option value="300">Alto</option>
+        </select>
+      </label>
+
+      <label>Resolución de Problemas:
+        <select id="resolucion">
+          <option value="100">Procedimental</option>
+          <option value="180">Analítico</option>
+          <option value="250">Conceptual / Estratégico</option>
+        </select>
+      </label>
+
+      <label>Responsabilidad:
+        <select id="responsabilidad">
+          <option value="150">Operativa</option>
+          <option value="230">Supervisión / Gestión</option>
+          <option value="320">Dirección Estratégica</option>
+        </select>
+      </label>
+    </section>
+
+    <button onclick="generarEvaluacion()">Generar Evaluación</button>
+    <button onclick="guardarEvaluacion()">Guardar Evaluación</button>
+    <button onclick="exportarPDF()">Exportar a PDF</button>
+
+    <section id="resultado" style="display:none;">
+      <h2>Resultado de Evaluación</h2>
+      <p><strong>Nivel HAY estimado:</strong> <span id="nivelHAY"></span></p>
+      <p><strong>Descripción completa del puesto:</strong></p>
+      <div id="descripcionCompleta" class="descripcion-box"></div>
+    </section>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
