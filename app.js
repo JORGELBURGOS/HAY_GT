@@ -1236,3 +1236,112 @@ document.querySelectorAll('.step').forEach(step => {
         if (sectionId) goToSection(sectionId);
     });
 });
+
+
+
+function generatePDF() {
+    if (!window.currentEvaluation) {
+        showNotification('No hay evaluación para generar PDF', 'error');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const eval = window.currentEvaluation;
+
+    const explanations = window.explanations;
+
+    let y = 20;
+    doc.setFontSize(20);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Evaluación de Puesto', 105, y, { align: 'center' });
+    y += 20;
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Puesto: ${eval.jobTitle}`, 20, y); y += 10;
+    doc.text(`Fecha de evaluación: ${new Date(eval.evaluationDate).toLocaleDateString()}`, 20, y); y += 10;
+
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Descripción del Puesto:', 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const descLines = doc.splitTextToSize(eval.jobDescription || 'No especificado', 170);
+    doc.text(descLines, 20, y); y += descLines.length * 7 + 5;
+
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Responsabilidades Principales:', 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const respLines = doc.splitTextToSize(eval.jobResponsibilities || 'No especificado', 170);
+    doc.text(respLines, 20, y); y += respLines.length * 7 + 10;
+
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Resultados de Evaluación:', 20, y); y += 10;
+
+    doc.autoTable({
+        startY: y,
+        head: [['Componente', 'Puntaje']],
+        body: [
+            ['Know-How', eval.scores.knowHow],
+            ['Solución de Problemas', eval.scores.problemSolving],
+            ['Responsabilidad', eval.scores.responsibility],
+            ['TOTAL', eval.scores.total]
+        ],
+        theme: 'grid',
+        headStyles: {
+            fillColor: [67, 97, 238],
+            textColor: [255, 255, 255]
+        }
+    });
+    y = doc.lastAutoTable.finalY + 10;
+
+    const profileInfo = window.evaluationData.profileTypes[eval.profileType];
+
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Perfil Corto:', 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Tipo: ${profileInfo.name}`, 20, y); y += 8;
+    const profLines = doc.splitTextToSize(profileInfo.description, 170);
+    doc.text(profLines, 20, y); y += profLines.length * 7 + 10;
+
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Descripción del Nivel:', 20, y); y += 8;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    const levelLines = doc.splitTextToSize(eval.level.description, 170);
+    doc.text(levelLines, 20, y); y += levelLines.length * 7 + 10;
+
+    // Incluir explicaciones de selección
+    doc.setFontSize(14);
+    doc.setTextColor(67, 97, 238);
+    doc.text('Explicaciones por Perspectiva:', 20, y); y += 10;
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+
+    const selections = {
+        "Competencia Técnica": explanations.technicalCompetence[document.getElementById("technicalCompetence").value],
+        "Nivel de Comunicación": explanations.communicationLevel[document.getElementById("communicationLevel").value],
+        "Ámbito de Integración": explanations.integrationScope[document.getElementById("integrationScope").value],
+        "Complejidad de Problemas": explanations.problemComplexity[document.getElementById("problemComplexity").value],
+        "Libertad de Pensamiento": explanations.thinkingFreedom[document.getElementById("thinkingFreedom").value],
+        "Libertad para Actuar": explanations.actionFreedom[document.getElementById("actionFreedom").value],
+        "Naturaleza del Impacto": explanations.impactNature[document.getElementById("impactNature").value],
+        "Magnitud del Impacto": explanations.impactMagnitude[document.getElementById("impactMagnitude").value]
+    };
+
+    for (const [key, val] of Object.entries(selections)) {
+        const lines = doc.splitTextToSize(`${key}: ${val || 'No definido'}`, 170);
+        doc.text(lines, 20, y);
+        y += lines.length * 7;
+    }
+
+    doc.save(`Evaluacion_${eval.jobTitle.replace(/\s+/g, '_')}.pdf`);
+    showNotification('PDF generado correctamente', 'success');
+}
